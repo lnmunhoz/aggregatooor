@@ -1,76 +1,57 @@
 import ApexCharts from "react-apexcharts";
 import React, { useEffect, useRef } from "react";
 import { useAppContext } from "../../context";
-import { useComplexProtocolList } from "../../data/useDebank";
-
-const regex = /DAI|USDC|USDT|UST|MIM/;
+import { useComplexProtocolList, useTokenList } from "../../data/hooks";
+import { preparePieData } from "../../data/helpers";
+import { Box } from "@chakra-ui/layout";
 
 export const Chart = () => {
-  const ref = useRef();
   const { walletManager } = useAppContext();
-  const { data, isLoading } = useComplexProtocolList(
+  const complexProtocolListQuery = useComplexProtocolList(
     walletManager.getAddress()
   );
+  const tokenListQuery = useTokenList(walletManager.getAddress());
 
-  const suppliedTokens = data
-    ?.flatMap((curr) => {
-      return curr.portfolio_item_list?.flatMap((item: any) => {
-        if ("supply_token_list" in item.detail) {
-          return item.detail.supply_token_list;
-        }
-      });
-    })
-    .filter((curr) => !!curr);
+  const isLoading =
+    complexProtocolListQuery.isLoading || tokenListQuery.isLoading;
 
-  useEffect(() => {
-    if (suppliedTokens) {
-      var options = {
-        series: suppliedTokens.map((s) => s.amount),
-        chart: {
-          width: 600,
-          type: "pie",
-        },
-        labels: suppliedTokens.map((s) => s.symbol),
-        responsive: [
-          {
-            breakpoint: 480,
-            options: {
-              chart: {
-                width: 200,
-              },
-              legend: {
-                position: "bottom",
-              },
-            },
-          },
-        ],
-      };
+  // @ts-ignore
+  if (complexProtocolListQuery?.data?.errors || tokenListQuery?.data?.errors) {
+    return <div>Error fetching data</div>;
+  }
 
-      var chart = new ApexCharts(ref.current, options);
-      if (ref.current && suppliedTokens) {
-        chart.render();
-      }
-    }
-  }, [suppliedTokens]);
+  const pieData =
+    complexProtocolListQuery.data &&
+    tokenListQuery.data &&
+    preparePieData(complexProtocolListQuery.data, tokenListQuery.data);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!data || !suppliedTokens) {
+  if (!pieData) {
     return <div> No data </div>;
   }
 
   return (
-    <ApexCharts
-      options={{
-        labels: suppliedTokens.map((s) => s.symbol),
-        chart: {
-          width: 600,
-        },
-      }}
-      series={suppliedTokens.map((s) => s.amount)}
-      type="pie"
-    />
+    <Box maxWidth={600}>
+      <button>Aggregate</button>
+
+      <ApexCharts
+        options={{
+          labels: pieData.labels,
+          stroke: {
+            width: 0,
+          },
+          legend: {
+            labels: {
+              colors: ["#ffff"],
+            },
+          },
+        }}
+        series={pieData.series}
+        type="pie"
+      />
+    </Box>
   );
 };

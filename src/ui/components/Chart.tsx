@@ -4,6 +4,7 @@ import { useAppContext } from "../../context";
 import { useComplexProtocolList, useTokenList } from "../../data/hooks";
 import { preparePieData } from "../../data/helpers";
 import { Box } from "@chakra-ui/layout";
+import { Spinner } from "@chakra-ui/react";
 
 export const Chart = () => {
   const { walletManager } = useAppContext();
@@ -17,7 +18,11 @@ export const Chart = () => {
 
   // @ts-ignore
   if (complexProtocolListQuery?.data?.errors || tokenListQuery?.data?.errors) {
-    return <div>Error fetching data</div>;
+    return (
+      <Box margin="0 auto" justifyContent="center" display="flex">
+        Error fetching data
+      </Box>
+    );
   }
 
   const pieData =
@@ -26,32 +31,36 @@ export const Chart = () => {
     preparePieData(complexProtocolListQuery.data, tokenListQuery.data);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Box margin="0 auto" justifyContent="center" display="flex">
+        <Spinner size="lg" />
+      </Box>
+    );
   }
 
   if (!pieData) {
-    return <div> No data </div>;
+    return (
+      <Box margin="0 auto" justifyContent="center" display="flex">
+        Nothing to show
+      </Box>
+    );
   }
 
   return (
-    <Box maxWidth={600}>
-      <button>Aggregate</button>
-
-      <ApexCharts
-        options={{
-          labels: pieData.labels,
-          stroke: {
-            width: 0,
+    <ApexCharts
+      options={{
+        labels: pieData.labels,
+        stroke: {
+          width: 0,
+        },
+        legend: {
+          labels: {
+            colors: ["#ffff"],
           },
-          legend: {
-            labels: {
-              colors: ["#ffff"],
-            },
-          },
-        }}
-        series={pieData.series}
-        type="pie"
-      />
-    </Box>
+        },
+      }}
+      series={pieData.series}
+      type="pie"
+    />
   );
 };

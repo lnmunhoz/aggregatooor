@@ -33,11 +33,14 @@ export const WalletInput = () => {
         type="text"
         placeholder="Enter your wallet address"
         onChange={handleChange}
+        borderRadius={12}
         value={address}
+        onKeyUp={(e) => {
+          if (e.key === "Enter") {
+            onSearch();
+          }
+        }}
       />
-      <Button leftIcon={<SearchIcon />} onClick={onSearch}>
-        Search
-      </Button>
     </Box>
   );
 };

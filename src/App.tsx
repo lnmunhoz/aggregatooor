@@ -7,6 +7,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { QueryClientProvider } from "react-query";
+import pkg from "../package.json";
 import "./App.css";
 import { AppProvider } from "./core/App";
 import { WalletManagerProvider } from "./core/WalletManager";
@@ -50,7 +51,7 @@ function App() {
                   justifyContent="center"
                   width="100%"
                 >
-                  Made by #wagmibr nation
+                  Made by #wagmibr nation (v{pkg.version})
                 </Box>
               </Box>
             </QueryClientProvider>

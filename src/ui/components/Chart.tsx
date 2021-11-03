@@ -5,11 +5,13 @@ import { preparePieData } from "../../data/helpers";
 import { Box } from "@chakra-ui/layout";
 import { Spinner } from "@chakra-ui/react";
 import { useAppContext } from "../../core/App";
+import { useWalletManager } from "../../core/WalletManager";
 
 export const Chart = () => {
-  const { getSelectedAddress } = useAppContext();
-  const complexProtocolListQuery = useComplexProtocolList(getSelectedAddress());
-  const tokenListQuery = useTokenList(getSelectedAddress());
+  const walletManager = useWalletManager();
+  const addresses = walletManager.getAddresses();
+  const complexProtocolListQuery = useComplexProtocolList(addresses);
+  const tokenListQuery = useTokenList(addresses);
 
   const isLoading =
     complexProtocolListQuery.isLoading || tokenListQuery.isLoading;
@@ -36,10 +38,18 @@ export const Chart = () => {
     );
   }
 
-  if (!pieData) {
+  if (addresses.length === 0 || !pieData) {
     return (
       <Box margin="0 auto" justifyContent="center" display="flex">
         Nothing to show
+      </Box>
+    );
+  }
+
+  if (pieData?.suppliedAssets?.length === 0) {
+    return (
+      <Box margin="0 auto" justifyContent="center" display="flex">
+        Wallet(s) are empty
       </Box>
     );
   }

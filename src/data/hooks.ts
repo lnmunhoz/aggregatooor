@@ -1,5 +1,6 @@
 import { useQuery } from "react-query";
 import { ComplexProtocolListResponse, SupplyTokenList } from "./types";
+import flatMap from "lodash/flatMap";
 
 const API_URL = "https://openapi.debank.com/v1";
 const Endpoints = {
@@ -7,36 +8,46 @@ const Endpoints = {
   userTokenList: `${API_URL}/user/token_list`,
 };
 
-export const useComplexProtocolList = (address: string) => {
+export const useComplexProtocolList = (addresses: string[]) => {
   const { isLoading, error, data } = useQuery<ComplexProtocolListResponse[]>(
-    `complexProtocolList.${address}`,
-    () =>
-      fetch(`${Endpoints.userComplexProtocolList}?id=${address}`).then((res) =>
-        res.json()
-      ),
-    { enabled: !!address, onError: (e) => console.error(e) }
+    `complexProtocolList.${addresses.join(",")}`,
+    () => {
+      return Promise.all(
+        addresses.map((addr) => {
+          return fetch(`${Endpoints.userComplexProtocolList}?id=${addr}`).then(
+            (res) => res.json()
+          );
+        })
+      );
+    },
+    { enabled: addresses?.length > 0, onError: (e) => console.error(e) }
   );
 
   return {
     isLoading,
     error,
-    data,
+    data: flatMap(data),
   };
 };
 
-export const useTokenList = (address: string) => {
+export const useTokenList = (addresses: string[]) => {
   const { isLoading, error, data } = useQuery<SupplyTokenList[]>(
-    `tokenList.${address}`,
-    () =>
-      fetch(`${Endpoints.userTokenList}?id=${address}`).then((res) =>
-        res.json()
-      ),
-    { enabled: !!address, onError: (e) => console.error(e) }
+    `tokenList.${addresses.join(",")}`,
+    () => {
+      return Promise.all(
+        addresses.map((addr) => {
+          return fetch(`${Endpoints.userTokenList}?id=${addr}`).then((res) =>
+            res.json()
+          );
+        })
+      );
+    },
+    { enabled: addresses?.length > 0, onError: (e) => console.error(e) }
   );
 
   return {
     isLoading,
     error,
-    data,
+    data: flatMap(data),
   };
 };

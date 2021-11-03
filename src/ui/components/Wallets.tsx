@@ -14,21 +14,13 @@ export const Wallets = () => {
   return (
     <>
       {addresses.map((address) => (
-        <Box
-          key={address}
-          display="flex"
-          _hover={{
-            bg: "blue.500",
-            cursor: "pointer",
-          }}
-        >
+        <Box key={address} display="flex">
           <Tag
             variant={isSelected(address) ? "solid" : "outline"}
             size="lg"
             width="100%"
             justifyContent="space-between"
             paddingRight={0}
-            onClick={() => selectAddress(address)}
           >
             {address}
             <IconButton

@@ -68,10 +68,6 @@ export const preparePieData = (
     ...suppliedGroups.assets.map((a) => a.netUsdValue),
   ];
 
-  console.log("labels", labels);
-  console.log("series", series);
-  console.log("assetsGroup", assetsGroup);
-
   return {
     labels,
     series,

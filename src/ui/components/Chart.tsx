@@ -1,17 +1,15 @@
 import ApexCharts from "react-apexcharts";
 import React, { useEffect, useRef } from "react";
-import { useAppContext } from "../../context";
 import { useComplexProtocolList, useTokenList } from "../../data/hooks";
 import { preparePieData } from "../../data/helpers";
 import { Box } from "@chakra-ui/layout";
 import { Spinner } from "@chakra-ui/react";
+import { useAppContext } from "../../core/App";
 
 export const Chart = () => {
-  const { walletManager } = useAppContext();
-  const complexProtocolListQuery = useComplexProtocolList(
-    walletManager.getAddress()
-  );
-  const tokenListQuery = useTokenList(walletManager.getAddress());
+  const { getSelectedAddress } = useAppContext();
+  const complexProtocolListQuery = useComplexProtocolList(getSelectedAddress());
+  const tokenListQuery = useTokenList(getSelectedAddress());
 
   const isLoading =
     complexProtocolListQuery.isLoading || tokenListQuery.isLoading;

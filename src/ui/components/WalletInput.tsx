@@ -1,14 +1,12 @@
-import { Button } from "@chakra-ui/button";
-import Icon from "@chakra-ui/icon";
-import { SearchIcon } from "@chakra-ui/icons";
 import { Input } from "@chakra-ui/input";
 import { Box } from "@chakra-ui/layout";
-import { useEffect, useState } from "react";
-import { useAppContext } from "../../context";
+import { useState } from "react";
+import { useWalletManager } from "../../core/WalletManager";
 
 export const WalletInput = () => {
   const [address, setAddress] = useState("");
-  const { walletManager } = useAppContext();
+  const [error, setError] = useState("");
+  const { addAddress } = useWalletManager();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const address = event.target.value.trim();
@@ -16,25 +14,23 @@ export const WalletInput = () => {
   };
 
   const onSearch = () => {
-    localStorage.setItem("address", address);
-    walletManager.setAddress(address);
-  };
-
-  useEffect(() => {
-    const cachedAddress = localStorage.getItem("address");
-    if (cachedAddress) {
-      setAddress(cachedAddress);
+    try {
+      addAddress(address);
+      setAddress("");
+    } catch (err) {
+      setError(err.message);
     }
-  }, []);
+  };
 
   return (
     <Box display="flex">
       <Input
         type="text"
-        placeholder="Enter your wallet address"
+        placeholder="Add wallet address"
         onChange={handleChange}
         borderRadius={12}
         value={address}
+        isInvalid={!!error}
         onKeyUp={(e) => {
           if (e.key === "Enter") {
             onSearch();
